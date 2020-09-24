@@ -12,10 +12,9 @@ def value_iteration(p_dist, gamma=0.9, delta=0.001):
     max_d = delta
 
     while max_d >= delta:
-        """
-        Call value_iteration_update to perform update for each element in value function
-        Update delta value to reflect current changing behavior
-        """
+        # Call value_iteration_update to perform update for each element in value function
+        # Update delta value to reflect current changing behavior
+        
         v_curr = {s: value_iteration_update(p_dist, s, v_opt, gamma) for s in p_dist}
         max_d = max([abs(v_curr[s] - v_opt[s]) for s in p_dist])
         v_opt = v_curr
