@@ -13,7 +13,7 @@ batch_size = 32
 gamma = 0.9
 min_epsilon = 0.01
 n_neurons = 24
-n_episodes = 1000
+n_episodes = 2000
 n_steps = 200
 
 # Create the Neural Network Model
