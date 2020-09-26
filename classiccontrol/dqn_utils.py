@@ -52,15 +52,19 @@ def dqn_step(env, s, model, replay_buffer, epsilon=0.01):
     replay_buffer.append((s, a, r, s_prime, done))
     return s_prime, r, done, info
 
-def dqn(batch_size, replay_buffer, model, loss_fn, optimizer, n_outputs=2, gamma=0.95):
+def dqn(batch_size, replay_buffer, model, target, loss_fn, optimizer, n_outputs=2, gamma=0.95):
     """
     Method to sample from the replay buffer, calculate the target q values, and compute the 
     gradients in the direction of this target from the current experienced states
     """
 
     all_s, all_a, all_r, all_s_prime, all_done = sample_batch_replay_buffer(batch_size, replay_buffer)
-    max_q = np.max(model.predict(all_s_prime), axis=1)
-    target_q = all_r + (1 - all_done) * gamma * max_q
+    best_next_a = np.argmax(model.predict(all_s_prime), axis=1)
+    next_mask = tf.one_hot(best_next_a, n_outputs, on_value=1.0, off_value=0.0).numpy()
+    next_best_q = (target.predict(all_s_prime) * next_mask).sum(axis=1)
+    target_q = (all_r + 
+                       (1 - all_done) * gamma * next_best_q)
+    target_q = target_q.reshape(-1, 1)
     mask = tf.one_hot(all_a, n_outputs, on_value=1.0, off_value=0.0)
     with tf.GradientTape() as tape:
         all_q = model(all_s)
